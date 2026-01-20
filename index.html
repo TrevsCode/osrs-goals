@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRI2 2026 Goal Board</title>
+    
+    <!-- RuneScape-style font -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ============================================
+           OSRS COLOR PALETTE & VARIABLES
+           ============================================ */
+        :root {
+            --osrs-dark-brown: #2e2218;
+            --osrs-medium-brown: #3e3024;
+            --osrs-light-brown: #5c4a3d;
+            --osrs-tan: #c9ad86;
+            --osrs-light-tan: #d9c9a8;
+            --osrs-gold: #ff981f;
+            --osrs-yellow: #ffff00;
+            --osrs-green: #00ff00;
+            --osrs-red: #ff0000;
+            --osrs-orange: #ff6600;
+            --osrs-black: #0e0e0e;
+            --osrs-shadow: #1a1410;
+            --osrs-border-light: #6b5a4a;
+            --osrs-border-dark: #1a120a;
+            --osrs-completed: #3d6b1e;
+            --osrs-completed-light: #4a8525;
+        }
+
+        /* ============================================
+           GLOBAL STYLES & RESET
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--osrs-black);
+            background-image: 
+                radial-gradient(ellipse at center, #1a1612 0%, #0e0e0e 100%);
+            min-height: 100vh;
+            color: var(--osrs-tan);
+            overflow-x: hidden;
+        }
+
+        /* ============================================
+           OSRS-STYLE SCROLLBAR
+           ============================================ */
+        ::-webkit-scrollbar {
+            width: 16px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--osrs-dark-brown);
+            border-left: 2px solid var(--osrs-border-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--osrs-light-brown) 0%, var(--osrs-medium-brown) 100%);
+            border: 2px solid var(--osrs-border-light);
+            border-radius: 0;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--osrs-tan) 0%, var(--osrs-light-brown) 100%);
+        }
+
+        /* ============================================
+           MAIN CONTAINER - OSRS INTERFACE PANEL
+           ============================================ */
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        /* ============================================
+           OSRS-STYLE PANEL/FRAME
+           ============================================ */
+        .osrs-panel {
+            background: linear-gradient(180deg, #4a3c2e 0%, #3a2e22 50%, #2e2218 100%);
+            border: 4px solid var(--osrs-border-dark);
+            box-shadow: 
+                inset 0 0 0 1px var(--osrs-border-light),
+                inset 0 0 0 2px var(--osrs-border-dark),
+                0 4px 8px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .osrs-panel::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+            border: 1px solid var(--osrs-border-light);
+            pointer-events: none;
+        }
+
+        /* ============================================
+           TITLE BANNER - OSRS STYLE
+           ============================================ */
+        .title-banner {
+            background: linear-gradient(180deg, #2a1f15 0%, #1a1410 100%);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid var(--osrs-border-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .title-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--osrs-gold), transparent);
+        }
+
+        .title-banner::after {
+            content: '';
+            position: absolute;
+            bottom: 3px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--osrs-border-light), transparent);
+        }
+
+        .main-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(14px, 4vw, 24px);
+            color: var(--osrs-gold);
+            text-shadow: 
+                2px 2px 0 var(--osrs-black),
+                -1px -1px 0 var(--osrs-black),
+                1px -1px 0 var(--osrs-black),
+                -1px 1px 0 var(--osrs-black),
+                0 0 10px rgba(255, 152, 31, 0.5);
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .main-title:hover {
+            color: var(--osrs-yellow);
+            text-shadow: 
+                2px 2px 0 var(--osrs-black),
+                0 0 20px rgba(255, 255, 0, 0.7);
+        }
+
+        /* ============================================
+           INSTRUCTIONS BAR
+           ============================================ */
+        .instructions {
+            background: var(--osrs-shadow);
+            padding: 8px 15px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--osrs-tan);
+            border-bottom: 2px solid var(--osrs-border-dark);
+            line-height: 1.6;
+        }
+
+        .instructions span {
+            color: var(--osrs-gold);
+        }
+
+        /* ============================================
+           TOOLBAR - FILTER & ACTIONS
+           ============================================ */
+        .toolbar {
+            background: linear-gradient(180deg, #3a2e22 0%, #2e2218 100%);
+            padding: 15px;
+            border-bottom: 2px solid var(--osrs-border-dark);
+        }
+
+        .toolbar-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .toolbar-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .toolbar-label {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: var(--osrs-gold);
+            text-shadow: 1px 1px 0 var(--osrs-black);
+        }
+
+        /* ============================================
+           OSRS-STYLE BUTTONS
+           ============================================ */
+        .osrs-btn {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 8px 16px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.1s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            
+            /* Stone button style */
+            background: linear-gradient(180deg, #6b5a4a 0%, #4a3c2e 40%, #3a2e22 100%);
+            color: var(--osrs-tan);
+            border: 2px solid var(--osrs-border-dark);
+            box-shadow: 
+                inset 0 1px 0 var(--osrs-border-light),
+                inset 0 -2px 0 var(--osrs-shadow),
+                2px 2px 0 var(--osrs-black);
+        }
+
+        .osrs-btn:hover {
+            background: linear-gradient(180deg, #7b6a5a 0%, #5a4c3e 40%, #4a3e32 100%);
+            color: var(--osrs-light-tan);
+        }
+
+        .osrs-btn:active {
+            background: linear-gradient(180deg, #3a2e22 0%, #4a3c2e 60%, #5a4a3a 100%);
+            box-shadow: 
+                inset 0 2px 4px var(--osrs-shadow),
+                1px 1px 0 var(--osrs-black);
+            transform: translate(1px, 1px);
+        }
+
+        .osrs-btn.active {
+            background: linear-gradient(180deg, #5a8525 0%, #3d6b1e 40%, #2d5016 100%);
+            color: var(--osrs-yellow);
+            box-shadow: 
+                inset 0 1px 0 #7ba84a,
+                inset 0 -2px 0 #1a3a0a,
+                2px 2px 0 var(--osrs-black);
+        }
+
+        .osrs-btn.active::before {
+            content: '✓ ';
+        }
+
+        /* ============================================
+           FILTER PILLS CONTAINER
+           ============================================ */
+        .filter-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .show-all-link {
+            font-size: 11px;
+            color: #888;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-left: auto;
+            padding: 5px 10px;
+            transition: color 0.2s;
+        }
+
+        .show-all-link:hover {
+            color: var(--osrs-gold);
+        }
+
+        .show-all-link.dimmed {
+            color: #555;
+            text-decoration: none;
+        }
+
+        /* ============================================
+           ACTION BUTTONS ROW
+           ============================================ */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .osrs-btn.save-btn {
+            background: linear-gradient(180deg, #4a7a2a 0%, #3a6a1e 40%, #2a5014 100%);
+        }
+
+        .osrs-btn.save-btn:hover {
+            background: linear-gradient(180deg, #5a8a3a 0%, #4a7a2e 40%, #3a6024 100%);
+        }
+
+        .osrs-btn.load-btn {
+            background: linear-gradient(180deg, #6a5a2a 0%, #5a4a1e 40%, #4a3a14 100%);
+        }
+
+        .osrs-btn.load-btn:hover {
+            background: linear-gradient(180deg, #7a6a3a 0%, #6a5a2e 40%, #5a4a24 100%);
+        }
+
+        /* ============================================
+           PROGRESS BAR
+           ============================================ */
+        .progress-container {
+            background: var(--osrs-shadow);
+            padding: 12px 15px;
+            border-bottom: 2px solid var(--osrs-border-dark);
+        }
+
+        .progress-bar-outer {
+            background: var(--osrs-black);
+            border: 2px solid var(--osrs-border-dark);
+            height: 24px;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            background: linear-gradient(180deg, #5a8525 0%, #3d6b1e 50%, #2d5016 100%);
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar-inner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 100%);
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: var(--osrs-yellow);
+            text-shadow: 1px 1px 0 var(--osrs-black), -1px -1px 0 var(--osrs-black);
+            white-space: nowrap;
+            z-index: 1;
+        }
+
+        /* ============================================
+           SECTIONS CONTAINER
+           ============================================ */
+        .sections-container {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* ============================================
+           SECTION PANEL
+           ============================================ */
+        .section {
+            background: linear-gradient(180deg, #3a2e22 0%, #2e2218 100%);
+            border: 3px solid var(--osrs-border-dark);
+            box-shadow: 
+                inset 0 0 0 1px var(--osrs-border-light),
+                0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .section-header {
+            background: linear-gradient(180deg, #2a1f15 0%, #1a1410 100%);
+            padding: 12px;
+            text-align: center;
+            border-bottom: 2px solid var(--osrs-border-dark);
+            position: relative;
+        }
+
+        .section-header::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 10%;
+            right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--osrs-border-light), transparent);
+        }
+
+        .section-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(10px, 2.5vw, 14px);
+            color: var(--osrs-gold);
+            text-shadow: 
+                1px 1px 0 var(--osrs-black),
+                0 0 8px rgba(255, 152, 31, 0.3);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .section-title:hover {
+            color: var(--osrs-yellow);
+        }
+
+        /* ============================================
+           BINGO GRID
+           ============================================ */
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 15px;
+            justify-items: center;
+        }
+
+        /* ============================================
+           BINGO TILE - THE STAR OF THE SHOW
+           ============================================ */
+        .bingo-tile {
+            width: 100%;
+            max-width: 120px;
+            aspect-ratio: 1;
+            background: linear-gradient(145deg, #4a3c2e 0%, #3a2e22 50%, #2e2218 100%);
+            border: 3px solid var(--osrs-border-dark);
+            box-shadow: 
+                inset 0 0 0 1px var(--osrs-border-light),
+                inset 0 0 20px rgba(0,0,0,0.3),
+                3px 3px 0 var(--osrs-black);
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .bingo-tile:hover {
+            background: linear-gradient(145deg, #5a4c3e 0%, #4a3e32 50%, #3e3228 100%);
+            border-color: var(--osrs-border-light);
+            transform: translate(-1px, -1px);
+            box-shadow: 
+                inset 0 0 0 1px var(--osrs-tan),
+                inset 0 0 20px rgba(0,0,0,0.2),
+                4px 4px 0 var(--osrs-black);
+        }
+
+        .bingo-tile.completed {
+            background: linear-gradient(145deg, #4a8525 0%, #3d6b1e 50%, #2d5016 100%);
+            border-color: #1a3a0a;
+            box-shadow: 
+                inset 0 0 0 1px #6ba84a,
+                inset 0 0 20px rgba(0,0,0,0.2),
+                3px 3px 0 var(--osrs-black),
+                0 0 15px rgba(0, 255, 0, 0.2);
+        }
+
+        .bingo-tile.completed:hover {
+            background: linear-gradient(145deg, #5a9535 0%, #4d7b2e 50%, #3d6026 100%);
+        }
+
+        .bingo-tile.completed::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 14px;
+            color: var(--osrs-yellow);
+            text-shadow: 1px 1px 0 var(--osrs-black);
+        }
+
+        .tile-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .tile-image {
+            max-width: 80%;
+            max-height: 60%;
+            object-fit: contain;
+            image-rendering: pixelated;
+            filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.5));
+        }
+
+        .tile-text {
+            font-size: clamp(9px, 2vw, 11px);
+            font-weight: bold;
+            color: var(--osrs-tan);
+            text-shadow: 1px 1px 0 var(--osrs-black);
+            word-break: break-word;
+            line-height: 1.3;
+        }
+
+        .bingo-tile.completed .tile-text {
+            color: var(--osrs-yellow);
+        }
+
+        /* ============================================
+           CONTEXT MENU
+           ============================================ */
+        .context-menu {
+            position: fixed;
+            background: linear-gradient(180deg, #4a3c2e 0%, #3a2e22 100%);
+            border: 3px solid var(--osrs-border-dark);
+            box-shadow: 
+                inset 0 0 0 1px var(--osrs-border-light),
+                4px 4px 8px rgba(0,0,0,0.5);
+            z-index: 1000;
+            min-width: 150px;
+            display: none;
+        }
+
+        .context-menu.visible {
+            display: block;
+        }
+
+        .context-menu-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--osrs-tan);
+            border-bottom: 1px solid var(--osrs-border-dark);
+            transition: all 0.1s;
+        }
+
+        .context-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .context-menu-item:hover {
+            background: var(--osrs-light-brown);
+            color: var(--osrs-yellow);
+        }
+
+        /* ============================================
+           MODAL / DIALOG
+           ============================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .modal-overlay.visible {
+            display: flex;
+        }
+
+        .modal {
+            background: linear-gradient(180deg, #4a3c2e 0%, #3a2e22 50%, #2e2218 100%);
+            border: 4px solid var(--osrs-border-dark);
+            box-shadow: 
+                inset 0 0 0 2px var(--osrs-border-light),
+                0 10px 30px rgba(0,0,0,0.5);
+            padding: 0;
+            min-width: 300px;
+            max-width: 90vw;
+        }
+
+        .modal-header {
+            background: linear-gradient(180deg, #2a1f15 0%, #1a1410 100%);
+            padding: 15px;
+            border-bottom: 2px solid var(--osrs-border-dark);
+        }
+
+        .modal-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            color: var(--osrs-gold);
+            text-shadow: 1px 1px 0 var(--osrs-black);
+            text-align: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-label {
+            display: block;
+            font-size: 11px;
+            color: var(--osrs-gold);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            background: var(--osrs-black);
+            border: 2px solid var(--osrs-border-dark);
+            color: var(--osrs-tan);
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: var(--osrs-gold);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding-top: 10px;
+        }
+
+        /* ============================================
+           HIDDEN FILE INPUT
+           ============================================ */
+        .hidden-input {
+            display: none;
+        }
+
+        /* ============================================
+           RESPONSIVE ADJUSTMENTS
+           ============================================ */
+        @media (max-width: 600px) {
+            .main-container {
+                padding: 5px;
+            }
+
+            .toolbar {
+                padding: 10px;
+            }
+
+            .toolbar-row {
+                justify-content: center;
+            }
+
+            .toolbar-label {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 5px;
+            }
+
+            .filter-pills {
+                justify-content: center;
+            }
+
+            .show-all-link {
+                width: 100%;
+                text-align: center;
+                margin-left: 0;
+                margin-top: 5px;
+            }
+
+            .bingo-grid {
+                gap: 6px;
+                padding: 10px;
+            }
+
+            .osrs-btn {
+                padding: 6px 12px;
+                font-size: 10px;
+            }
+
+            .sections-container {
+                padding: 10px;
+            }
+        }
+
+        /* ============================================
+           ANIMATIONS
+           ============================================ */
+        @keyframes completePulse {
+            0% { box-shadow: inset 0 0 0 1px #6ba84a, inset 0 0 20px rgba(0,0,0,0.2), 3px 3px 0 var(--osrs-black), 0 0 0 rgba(0, 255, 0, 0); }
+            50% { box-shadow: inset 0 0 0 1px #6ba84a, inset 0 0 20px rgba(0,0,0,0.2), 3px 3px 0 var(--osrs-black), 0 0 25px rgba(0, 255, 0, 0.5); }
+            100% { box-shadow: inset 0 0 0 1px #6ba84a, inset 0 0 20px rgba(0,0,0,0.2), 3px 3px 0 var(--osrs-black), 0 0 15px rgba(0, 255, 0, 0.2); }
+        }
+
+        .bingo-tile.just-completed {
+            animation: completePulse 0.5s ease;
+        }
+
+        /* ============================================
+           EMPTY STATE
+           ============================================ */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--osrs-tan);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="osrs-panel">
+            <!-- Title Banner -->
+            <div class="title-banner">
+                <h1 class="main-title" id="mainTitle" onclick="editMainTitle()">GRI2 2026 GOAL BOARD</h1>
+            </div>
+
+            <!-- Instructions -->
+            <div class="instructions">
+                <span>💡 Click</span> to mark complete | <span>Right-click</span> tiles for options | <span>Click</span> titles to edit
+            </div>
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <!-- Filter Row -->
+                <div class="toolbar-row">
+                    <span class="toolbar-label">Filter:</span>
+                    <div class="filter-pills" id="filterPills">
+                        <!-- Pills generated by JS -->
+                    </div>
+                    <span class="show-all-link" id="showAllLink" onclick="showAllSections()">Show All</span>
+                </div>
+
+                <!-- Action Buttons Row -->
+                <div class="toolbar-row">
+                    <div class="action-buttons">
+                        <button class="osrs-btn save-btn" onclick="exportProgress()">💾 Save Progress</button>
+                        <button class="osrs-btn load-btn" onclick="document.getElementById('importFile').click()">📂 Load Progress</button>
+                        <button class="osrs-btn" onclick="resetProgress()">🔄 Reset All</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar-outer">
+                    <div class="progress-bar-inner" id="progressBar"></div>
+                    <span class="progress-text" id="progressText">0 / 0 (0%)</span>
+                </div>
+            </div>
+
+            <!-- Sections -->
+            <div class="sections-container" id="sectionsContainer">
+                <!-- Sections generated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="editTileContent()">✏️ Edit Content</div>
+        <div class="context-menu-item" onclick="clearTile()">🗑️ Clear Tile</div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Edit Tile</div>
+            </div>
+            <div class="modal-body">
+                <label class="modal-label">Image URL:</label>
+                <input type="text" class="modal-input" id="editImageUrl" placeholder="https://oldschool.runescape.wiki/...">
+                
+                <label class="modal-label">Text (if no image):</label>
+                <input type="text" class="modal-input" id="editText" placeholder="Goal description">
+                
+                <div class="modal-buttons">
+                    <button class="osrs-btn" onclick="saveEdit()">Save</button>
+                    <button class="osrs-btn" onclick="closeModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="importFile" class="hidden-input" accept=".json" onchange="importProgress(event)">
+
+    <script>
+        // ============================================
+        // DEFAULT CONFIGURATION
+        // ============================================
+        const DEFAULT_CONFIG = {
+            title: "GRI2 2026 GOAL BOARD",
+            sections: [
+                {
+                    name: "Gear Progression",
+                    tiles: Array.from({length: 9}, (_, i) => ({
+                        id: `gear_${i}`,
+                        image_url: "",
+                        text: `Gear ${i + 1}`
+                    }))
+                },
+                {
+                    name: "Skill Progression", 
+                    tiles: Array.from({length: 9}, (_, i) => ({
+                        id: `skill_${i}`,
+                        image_url: "",
+                        text: `Skill ${i + 1}`
+                    }))
+                },
+                {
+                    name: "Achievements",
+                    tiles: Array.from({length: 9}, (_, i) => ({
+                        id: `achievement_${i}`,
+                        image_url: "",
+                        text: `Achievement ${i + 1}`
+                    }))
+                }
+            ]
+        };
+
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+        let config = JSON.parse(localStorage.getItem('bingoConfig')) || JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+        let tileStates = JSON.parse(localStorage.getItem('bingoStates')) || {};
+        let selectedSections = new Set();
+        let currentContextTileId = null;
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        function init() {
+            document.getElementById('mainTitle').textContent = config.title;
+            renderFilterPills();
+            renderSections();
+            updateProgress();
+            
+            // Close context menu on click elsewhere
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.context-menu')) {
+                    document.getElementById('contextMenu').classList.remove('visible');
+                }
+            });
+
+            // Close modal on overlay click
+            document.getElementById('editModal').addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal-overlay')) {
+                    closeModal();
+                }
+            });
+        }
+
+        // ============================================
+        // FILTER PILLS
+        // ============================================
+        function renderFilterPills() {
+            const container = document.getElementById('filterPills');
+            container.innerHTML = '';
+
+            config.sections.forEach((section, idx) => {
+                const pill = document.createElement('button');
+                pill.className = 'osrs-btn' + (selectedSections.size === 0 || selectedSections.has(idx) ? ' active' : '');
+                pill.textContent = section.name;
+                pill.onclick = () => toggleSection(idx);
+                container.appendChild(pill);
+            });
+
+            updateShowAllLink();
+        }
+
+        function toggleSection(idx) {
+            if (selectedSections.size === 0) {
+                // Currently showing all, switch to just this one
+                selectedSections.add(idx);
+            } else if (selectedSections.has(idx)) {
+                selectedSections.delete(idx);
+            } else {
+                selectedSections.add(idx);
+            }
+            
+            renderFilterPills();
+            renderSections();
+        }
+
+        function showAllSections() {
+            selectedSections.clear();
+            renderFilterPills();
+            renderSections();
+        }
+
+        function updateShowAllLink() {
+            const link = document.getElementById('showAllLink');
+            if (selectedSections.size === 0) {
+                link.textContent = 'Showing All';
+                link.classList.add('dimmed');
+            } else {
+                link.textContent = 'Show All';
+                link.classList.remove('dimmed');
+            }
+        }
+
+        // ============================================
+        // SECTIONS & TILES RENDERING
+        // ============================================
+        function renderSections() {
+            const container = document.getElementById('sectionsContainer');
+            container.innerHTML = '';
+
+            config.sections.forEach((section, sectionIdx) => {
+                if (selectedSections.size > 0 && !selectedSections.has(sectionIdx)) {
+                    return;
+                }
+
+                const sectionEl = document.createElement('div');
+                sectionEl.className = 'section';
+                sectionEl.innerHTML = `
+                    <div class="section-header">
+                        <h2 class="section-title" onclick="editSectionTitle(${sectionIdx})">${section.name}</h2>
+                    </div>
+                    <div class="bingo-grid" id="grid-${sectionIdx}"></div>
+                `;
+                container.appendChild(sectionEl);
+
+                const grid = sectionEl.querySelector('.bingo-grid');
+                section.tiles.forEach((tile, tileIdx) => {
+                    const tileEl = createTileElement(tile, sectionIdx, tileIdx);
+                    grid.appendChild(tileEl);
+                });
+            });
+        }
+
+        function createTileElement(tile, sectionIdx, tileIdx) {
+            const tileEl = document.createElement('div');
+            tileEl.className = 'bingo-tile' + (tileStates[tile.id] ? ' completed' : '');
+            tileEl.dataset.tileId = tile.id;
+            tileEl.dataset.sectionIdx = sectionIdx;
+            tileEl.dataset.tileIdx = tileIdx;
+
+            const content = document.createElement('div');
+            content.className = 'tile-content';
+
+            if (tile.image_url) {
+                const img = document.createElement('img');
+                img.className = 'tile-image';
+                img.src = tile.image_url;
+                img.alt = tile.text || 'Goal';
+                img.onerror = () => {
+                    img.style.display = 'none';
+                    const text = document.createElement('span');
+                    text.className = 'tile-text';
+                    text.textContent = tile.text || 'Goal';
+                    content.appendChild(text);
+                };
+                content.appendChild(img);
+            } else if (tile.text) {
+                const text = document.createElement('span');
+                text.className = 'tile-text';
+                text.textContent = tile.text;
+                content.appendChild(text);
+            }
+
+            tileEl.appendChild(content);
+
+            // Click to toggle
+            tileEl.addEventListener('click', (e) => {
+                if (e.button === 0) {
+                    toggleTile(tile.id, tileEl);
+                }
+            });
+
+            // Right-click for context menu
+            tileEl.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                showContextMenu(e, tile.id, sectionIdx, tileIdx);
+            });
+
+            return tileEl;
+        }
+
+        function toggleTile(tileId, tileEl) {
+            tileStates[tileId] = !tileStates[tileId];
+            
+            if (tileStates[tileId]) {
+                tileEl.classList.add('completed', 'just-completed');
+                setTimeout(() => tileEl.classList.remove('just-completed'), 500);
+            } else {
+                tileEl.classList.remove('completed');
+            }
+            
+            saveState();
+            updateProgress();
+        }
+
+        // ============================================
+        // PROGRESS TRACKING
+        // ============================================
+        function updateProgress() {
+            let total = 0;
+            let completed = 0;
+
+            config.sections.forEach(section => {
+                section.tiles.forEach(tile => {
+                    total++;
+                    if (tileStates[tile.id]) completed++;
+                });
+            });
+
+            const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = `${completed} / ${total} (${percentage}%)`;
+        }
+
+        // ============================================
+        // CONTEXT MENU
+        // ============================================
+        function showContextMenu(e, tileId, sectionIdx, tileIdx) {
+            currentContextTileId = { tileId, sectionIdx, tileIdx };
+            
+            const menu = document.getElementById('contextMenu');
+            menu.style.left = e.pageX + 'px';
+            menu.style.top = e.pageY + 'px';
+            menu.classList.add('visible');
+        }
+
+        function editTileContent() {
+            if (!currentContextTileId) return;
+            
+            const { sectionIdx, tileIdx } = currentContextTileId;
+            const tile = config.sections[sectionIdx].tiles[tileIdx];
+            
+            document.getElementById('editImageUrl').value = tile.image_url || '';
+            document.getElementById('editText').value = tile.text || '';
+            document.getElementById('editModal').classList.add('visible');
+            document.getElementById('contextMenu').classList.remove('visible');
+        }
+
+        function clearTile() {
+            if (!currentContextTileId) return;
+            
+            const { tileId, sectionIdx, tileIdx } = currentContextTileId;
+            
+            config.sections[sectionIdx].tiles[tileIdx].image_url = '';
+            config.sections[sectionIdx].tiles[tileIdx].text = '';
+            tileStates[tileId] = false;
+            
+            saveConfig();
+            saveState();
+            renderSections();
+            updateProgress();
+            
+            document.getElementById('contextMenu').classList.remove('visible');
+        }
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+        function saveEdit() {
+            if (!currentContextTileId) return;
+            
+            const { sectionIdx, tileIdx } = currentContextTileId;
+            
+            config.sections[sectionIdx].tiles[tileIdx].image_url = document.getElementById('editImageUrl').value.trim();
+            config.sections[sectionIdx].tiles[tileIdx].text = document.getElementById('editText').value.trim();
+            
+            saveConfig();
+            renderSections();
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('visible');
+        }
+
+        // ============================================
+        // TITLE EDITING
+        // ============================================
+        function editMainTitle() {
+            const newTitle = prompt('Enter new title:', config.title);
+            if (newTitle && newTitle.trim()) {
+                config.title = newTitle.trim();
+                document.getElementById('mainTitle').textContent = config.title;
+                saveConfig();
+            }
+        }
+
+        function editSectionTitle(sectionIdx) {
+            const currentName = config.sections[sectionIdx].name;
+            const newName = prompt('Enter new section name:', currentName);
+            if (newName && newName.trim()) {
+                config.sections[sectionIdx].name = newName.trim();
+                saveConfig();
+                renderFilterPills();
+                renderSections();
+            }
+        }
+
+        // ============================================
+        // SAVE / LOAD STATE
+        // ============================================
+        function saveConfig() {
+            localStorage.setItem('bingoConfig', JSON.stringify(config));
+        }
+
+        function saveState() {
+            localStorage.setItem('bingoStates', JSON.stringify(tileStates));
+        }
+
+        // ============================================
+        // EXPORT / IMPORT
+        // ============================================
+        function exportProgress() {
+            const data = {
+                config: config,
+                states: tileStates,
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bingo_progress_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+        }
+
+        function importProgress(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.config) {
+                        config = data.config;
+                        saveConfig();
+                    }
+                    
+                    if (data.states) {
+                        tileStates = data.states;
+                        saveState();
+                    }
+                    
+                    document.getElementById('mainTitle').textContent = config.title;
+                    renderFilterPills();
+                    renderSections();
+                    updateProgress();
+                    
+                    alert('Progress loaded successfully!');
+                } catch (err) {
+                    alert('Error loading file. Make sure it\'s a valid bingo progress file.');
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset file input
+            event.target.value = '';
+        }
+
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset ALL progress? This cannot be undone!')) {
+                tileStates = {};
+                saveState();
+                renderSections();
+                updateProgress();
+            }
+        }
+
+        // ============================================
+        // START THE APP
+        // ============================================
+        init();
+    </script>
+</body>
+</html>
