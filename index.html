@@ -1477,6 +1477,58 @@
             }
         }
 
+        // Cache for OSRS items (loaded once)
+        let osrsItemsCache = null;
+        let osrsItemsLoading = false;
+
+        async function loadOsrsItems() {
+            if (osrsItemsCache) return osrsItemsCache;
+            if (osrsItemsLoading) {
+                // Wait for existing load
+                while (osrsItemsLoading) {
+                    await new Promise(r => setTimeout(r, 100));
+                }
+                return osrsItemsCache;
+            }
+            
+            osrsItemsLoading = true;
+            try {
+                // Fetch the full OSRS item list from the wiki's equipment data
+                const response = await fetch('https://oldschool.runescape.wiki/api.php?action=parse&page=Module:GEIDs/data.json&prop=wikitext&format=json&origin=*');
+                const data = await response.json();
+                const wikitext = data.parse.wikitext['*'];
+                
+                // Parse the JSON from the wikitext
+                const jsonMatch = wikitext.match(/return\s*'(.+)'/s);
+                if (jsonMatch) {
+                    const itemsJson = JSON.parse(jsonMatch[1]);
+                    // Convert to array format: [{name: "Item Name"}, ...]
+                    osrsItemsCache = Object.keys(itemsJson).map(name => ({ name }));
+                } else {
+                    // Fallback to tradeable items API
+                    const fallbackResponse = await fetch('https://prices.runescape.wiki/api/v1/osrs/mapping', {
+                        headers: { 'User-Agent': 'OSRS Bingo Board - Goal Tracker' }
+                    });
+                    osrsItemsCache = await fallbackResponse.json();
+                }
+            } catch (err) {
+                console.error('Failed to load OSRS items, using fallback:', err);
+                try {
+                    const fallbackResponse = await fetch('https://prices.runescape.wiki/api/v1/osrs/mapping', {
+                        headers: { 'User-Agent': 'OSRS Bingo Board - Goal Tracker' }
+                    });
+                    osrsItemsCache = await fallbackResponse.json();
+                } catch (e) {
+                    osrsItemsCache = [];
+                }
+            }
+            osrsItemsLoading = false;
+            return osrsItemsCache;
+        }
+
+        // Preload items when page loads
+        loadOsrsItems();
+
         async function searchItems(query) {
             const spinner = document.getElementById('lookupSpinner');
             const results = document.getElementById('lookupResults');
@@ -1485,32 +1537,34 @@
             selectedResultIndex = -1;
             
             try {
-                // Use OSRS Wiki API for search
-                const searchUrl = `https://oldschool.runescape.wiki/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=15&namespace=0&format=json&origin=*`;
+                // Load OSRS items from cache
+                const osrsItems = await loadOsrsItems();
                 
-                const response = await fetch(searchUrl);
-                const data = await response.json();
+                // Filter items that match the query
+                const queryLower = query.toLowerCase();
+                const matchingItems = osrsItems.filter(item => 
+                    item.name.toLowerCase().includes(queryLower)
+                ).slice(0, 20);
                 
-                // data[1] contains the titles
-                const titles = data[1] || [];
-                
-                if (titles.length === 0) {
+                if (matchingItems.length === 0) {
                     results.innerHTML = '<div class="lookup-no-results">No items found. Try a different search.</div>';
                     results.classList.add('visible');
                     spinner.classList.remove('visible');
                     return;
                 }
                 
-                // Build results HTML
-                results.innerHTML = titles.map((title, idx) => {
-                    // Convert title to image URL (replace spaces with underscores)
-                    const imageName = title.replace(/ /g, '_');
-                    const imageUrl = `https://oldschool.runescape.wiki/images/${encodeURIComponent(imageName)}.png`;
+                // Build results HTML - use the DPS tools CDN for images
+                results.innerHTML = matchingItems.map((item, idx) => {
+                    const imageName = item.name.replace(/ /g, '_');
+                    // Primary: DPS tools CDN (has untradeables)
+                    const imageUrl = `https://tools.runescape.wiki/osrs-dps/cdn/equipment/${encodeURIComponent(imageName)}.png`;
+                    // Fallback: Regular wiki images
+                    const fallbackUrl = `https://oldschool.runescape.wiki/images/${encodeURIComponent(imageName)}.png`;
                     
                     return `
-                        <div class="lookup-result-item" onclick="selectItem('${escapeHtml(title)}', '${escapeHtml(imageUrl)}')">
-                            <img class="lookup-result-img" src="${imageUrl}" alt="${escapeHtml(title)}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2236%22 height=%2236%22><rect fill=%22%231a1410%22 width=%2236%22 height=%2236%22/><text x=%2218%22 y=%2222%22 text-anchor=%22middle%22 fill=%22%23666%22 font-size=%2210%22>?</text></svg>'">
-                            <span class="lookup-result-name">${escapeHtml(title)}</span>
+                        <div class="lookup-result-item" onclick="selectItem('${escapeHtml(item.name)}', '${escapeHtml(fallbackUrl)}')">
+                            <img class="lookup-result-img" src="${imageUrl}" alt="${escapeHtml(item.name)}" onerror="this.onerror=null; this.src='${fallbackUrl}';">
+                            <span class="lookup-result-name">${escapeHtml(item.name)}</span>
                         </div>
                     `;
                 }).join('');
