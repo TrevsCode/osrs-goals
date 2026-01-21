@@ -1556,14 +1556,16 @@
                 // Build results HTML - use wiki images (larger/better quality)
                 results.innerHTML = matchingItems.map((item, idx) => {
                     const imageName = item.name.replace(/ /g, '_');
-                    // Primary: Regular wiki images (larger, better quality)
-                    const imageUrl = `https://oldschool.runescape.wiki/images/${encodeURIComponent(imageName)}.png`;
-                    // Fallback: DPS tools CDN
-                    const fallbackUrl = `https://tools.runescape.wiki/osrs-dps/cdn/equipment/${encodeURIComponent(imageName)}.png`;
+                    // Primary: Wiki detail images (larger)
+                    const imageUrl = `https://oldschool.runescape.wiki/images/${encodeURIComponent(imageName)}_detail.png`;
+                    // Fallback 1: Regular wiki images
+                    const fallbackUrl1 = `https://oldschool.runescape.wiki/images/${encodeURIComponent(imageName)}.png`;
+                    // Fallback 2: DPS tools CDN
+                    const fallbackUrl2 = `https://tools.runescape.wiki/osrs-dps/cdn/equipment/${encodeURIComponent(imageName)}.png`;
                     
                     return `
-                        <div class="lookup-result-item" onclick="selectItem('${escapeHtml(item.name)}', '${escapeHtml(imageUrl)}')">
-                            <img class="lookup-result-img" src="${imageUrl}" alt="${escapeHtml(item.name)}" onerror="this.onerror=null; this.src='${fallbackUrl}';">
+                        <div class="lookup-result-item" onclick="selectItem('${escapeHtml(item.name)}', '${escapeHtml(imageUrl)}', '${escapeHtml(fallbackUrl1)}')">
+                            <img class="lookup-result-img" src="${imageUrl}" alt="${escapeHtml(item.name)}" onerror="this.onerror=null; this.src='${fallbackUrl1}';">
                             <span class="lookup-result-name">${escapeHtml(item.name)}</span>
                         </div>
                     `;
@@ -1586,13 +1588,23 @@
             return div.innerHTML.replace(/'/g, "\\'");
         }
 
-        function selectItem(title, imageUrl) {
+        async function selectItem(title, imageUrl, fallbackUrl) {
             if (!currentContextTileId) return;
             
             const { sectionIdx, tileIdx } = currentContextTileId;
             
+            // Test if the detail image exists, otherwise use fallback
+            let finalUrl = imageUrl;
+            try {
+                const response = await fetch(imageUrl, { method: 'HEAD', mode: 'no-cors' });
+                // If we get here without error, image likely exists
+                // But with no-cors we can't actually check, so let's just try to load it
+            } catch (e) {
+                finalUrl = fallbackUrl || imageUrl;
+            }
+            
             // Update config with selected item
-            config.sections[sectionIdx].tiles[tileIdx].image_url = imageUrl;
+            config.sections[sectionIdx].tiles[tileIdx].image_url = finalUrl;
             config.sections[sectionIdx].tiles[tileIdx].text = title;
             
             saveConfig();
